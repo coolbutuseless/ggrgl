@@ -1,0 +1,142 @@
+---
+title: "geom_sphere_3d"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_sphere_3d}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(raymolecule)
+```
+
+`geom_sphere_3d` - 3d scatter plot
+------------------------------------------------------------------------------
+
+```{r warning = FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plot with `geom_sphere_3d()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(mtcars) +
+  geom_sphere_3d(aes(x = mpg, y = wt, z = disp,
+                     size = as.factor(cyl),
+                     colour = as.factor(cyl))) +
+  geom_segment_3d(aes(x = mpg, xend = mpg, y = wt, yend = wt, zend = disp), z = 0,
+                  alpha = 0.3) + 
+  theme_ggrgl(18) +
+  labs(
+    title    = "3d scatterplot",
+    subtitle = "ggrgl::geom_sphere_3d() with {devoutrgl}"
+  )
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render with a 3d backend - devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, 
+                  file = "man/figures/examples/geom-sphere-3d.png",  close_window = FALSE, dpi = 159)
+p
+dev.off()
+```
+
+
+
+Body-Centered Cubic crystal lattice `geom_sphere_3d` 
+------------------------------------------------------------------------------
+
+```{r warning = FALSE}
+N <- 4
+vertex_df <- expand.grid(
+  x = 1:N,
+  y = 1:N,
+  z = 1:N,
+  type = 'vertex',
+  stringsAsFactors = FALSE
+)
+
+
+center_df <- expand.grid(
+  x = (1:(N-1)) + 0.5,
+  y = (1:(N-1)) + 0.5,
+  z = (1:(N-1)) + 0.5,
+  type = 'center',
+  stringsAsFactors = FALSE
+)
+
+crystal_df <- bind_rows(vertex_df, center_df)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plot with `geom_sphere_3d()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot() +
+  geom_sphere_3d(data = crystal_df, aes(x = x, y = y, z = z, size = type, colour = type), 
+                 material = list(lit = TRUE)) +
+  theme_void() + 
+  coord_equal() + 
+  labs(
+    title    = "Body-centred cubic crystal lattice",
+    subtitle = "ggrgl::geom_sphere_3d() with {devoutrgl}"
+  ) + 
+  scale_size_manual(values = c(center = 50, vertex = 18)) + 
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render with a 3d backend - devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 4)
+p
+invisible(dev.off())
+```
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 10,
+                  file = "man/figures/examples/geom-sphere-3d-crystal.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+

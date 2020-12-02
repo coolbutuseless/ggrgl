@@ -1,0 +1,122 @@
+---
+title: "Demo - Pie Chart"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Pie Chart}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 8,
+  fig.height = 6
+)
+
+library(devoutrgl)
+library(ggrgl)
+library(ggplot2)
+```
+
+```{r setup}
+library(devoutrgl)
+library(ggrgl)
+library(ggplot2)
+```
+
+
+3d Pie Chart
+------------------------------------------------------------------------------
+
+
+```{r}
+
+df <- data.frame(
+  group = factor(c("Cool", "But", "Use", "Less"), levels =  c("Cool", "But", "Use", "Less")),
+  value = c(20, 20, 30, 30),
+  z     = c(10, 30, 5, 15)
+)
+
+p <- ggplot(df, aes(x="", y=value, fill=group, z = z)) +
+  geom_bar_z(width = 1, stat = "identity", extrude = TRUE) +
+  coord_polar("y", start=0) +
+  theme_bw() +
+  labs(
+      title    = "Pie Chart",
+      subtitle = "ggrgl::geom_bar_z() with {devoutrgl}"
+  )
+
+
+
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the view**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+
+3d Pie Chart with coloured extrusion faces
+------------------------------------------------------------------------------
+
+
+```{r}
+colours <- viridisLite::viridis(4)
+
+p <- ggplot(df, aes(x="", y=value, fill=group, z = z)) +
+  geom_bar_z(aes(extrude_face_fill = group), width = 1, stat = "identity", 
+             extrude = TRUE, keep2d = TRUE) +
+  coord_polar("y", start=0) +
+  scale_fill_manual(values = colours) +
+  scale_extrude_face_fill_manual(values = ggrgl::darken_colour(colours)) +
+  theme_void() +
+  labs(
+      title    = "Pie Chart",
+      subtitle = "ggrgl::geom_bar_z() with {devoutrgl}"
+  ) + 
+  scale_z_continuous(range = c(20, 100))
+
+
+
+devoutrgl::rgldev(fov = 30, view_angle = 30)
+p
+invisible(dev.off())
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0)
+p
+invisible(dev.off())
+```
+
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the view**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = 30, 
+                  file = "man/figures/examples/demo-pie.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+

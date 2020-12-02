@@ -1,0 +1,98 @@
+---
+title: "Detail - Keep 2d 'Shadow' of 3d Geom"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Detail - Keep 2d 'Shadow' of 3d Geom}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+```
+
+
+Keep a 2d shadow of a 3d geom
+-----------------------------------------------------------------------------
+
+Many 3d geoms have the ability to include a 2d "shadow" of the 3d geometry.
+
+When drawing with selected 3d geoms, set `keep2d = TRUE` to keep a flat 2d 
+rendering of the 3d geometry.
+
+
+
+Default: `Keep2d = FALSE`
+-----------------------------------------------------------------------------
+
+```{r}
+plot_df <- expand.grid(
+  x = 1:10,
+  y = 1:10
+)
+
+plot_df$z <- runif(100)
+
+
+p <- ggplot(plot_df) + 
+  geom_tile_z(aes(x=x, y=y, z=z, fill = z), alpha = 0.3) + 
+  scale_z_continuous(range = c(100, 200))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+
+
+Set `Keep2d = TRUE` to preserve a 2d 'shadow'
+-----------------------------------------------------------------------------
+
+Note: `keep2d` is not supported by all geoms.
+
+```{r}
+plot_df <- expand.grid(
+  x = 1:10,
+  y = 1:10
+)
+
+plot_df$z <- runif(100)
+
+
+p <- ggplot(plot_df) + 
+  geom_tile_z(aes(x=x, y=y, z=z, fill = z), alpha = 0.3, keep2d = TRUE) + 
+  scale_z_continuous(range = c(100, 200))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+

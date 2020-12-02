@@ -1,0 +1,142 @@
+---
+title: "Demo - Volcano"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Volcano}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(purrr)
+library(tibble)
+library(tidyr)
+library(rgl)
+library(ggrgl)
+library(viridis)
+```
+
+
+
+Using `geom_tile_z` to render tiles at different heights
+------------------------------------------------------------------------------
+
+```{r}
+set.seed(1)
+N <- 10
+x <- LETTERS[1:N]
+y <- paste0("var", seq(1,N))
+data <- expand.grid(X=x, Y=y)
+data$Z <- runif(N*N, 0, 5)
+
+p <- ggplot(data, aes(X, Y, fill= Z, z= Z)) + 
+  geom_tile_z(extrude = TRUE, mapping = aes(extrude_face_fill = Z)) +
+  coord_equal() +
+  labs(
+    title = "ggrgl::geom_tile_z() rendering heights",
+    subtitle = "with {devoutrgl}"
+  )
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -40, 
+                  file = "man/figures/examples/demo-volcano-1.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+Using `geom_tile_z` to render `volcano` data
+------------------------------------------------------------------------------
+
+```{r warning=FALSE}
+p <- volcano %>%
+  
+  # Data wrangling
+  as_tibble() %>%
+  rowid_to_column(var="X") %>%
+  gather(key="Y", value="Z", -1) %>%
+  
+  # Change Y to numeric
+  mutate(Y=as.numeric(gsub("V","",Y))) %>%
+  
+  # Viz
+  ggplot(aes(X, Y, fill= Z, colour = Z, z = Z)) + 
+  geom_tile_z(extrude = TRUE) +
+  theme_ggrgl() + 
+  theme(legend.position="none") + 
+  scale_fill_viridis_c(option = 'A') +
+  scale_colour_viridis_c(option = 'A') +
+  coord_equal() +
+  labs(
+    title = "ggrgl::geom_tile_z() rendering volcano",
+    subtitle = "with {devoutrgl}"
+  )
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view = 'flat', view_flat_angle = -65, zscale = 2,
+                  file = "man/figures/examples/demo-volcano-2.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+
+
+
+
+
+

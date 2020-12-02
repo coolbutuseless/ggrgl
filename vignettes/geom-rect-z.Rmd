@@ -1,0 +1,88 @@
+---
+title: "geom_rect_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_rect_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(dplyr)
+```
+
+
+`geom_rect_z()`
+-----------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a dataset
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(1)
+N <- 20
+df <- expand.grid(x = seq(0, 1, length.out = N+1), y = seq(0, 1, length.out = N+1))
+df <- df %>%
+  mutate(
+    z = runif(n()),
+    # w = 1 + round(4 * runif(n())),
+    w = 1/N + 1/N * runif(n()),
+    h = 1/N + 1/N * runif(n()), 
+    value = sqrt((x-0.5)^2 + (y-0.5)^2 + (z-0.5)^2)
+  )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with `geom_rect_z()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(df, aes(xmin = x - w / 2, xmax = x + w / 2, ymin = y - h/2, ymax = y + h/2, z = z)) +
+  geom_rect_z(aes(fill=value), colour = NA, alpha = 0.3, extrude = FALSE) +
+  labs(
+    title = "ggrgl::geom_rect_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  coord_equal() + 
+  theme_ggrgl() + 
+  theme(legend.position = 'none') + 
+  scale_fill_viridis_c()
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view = 'flat', view_flat_angle = -70, zscale = 6,
+                  file = "man/figures/examples/geom-rect-z.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```

@@ -1,0 +1,173 @@
+---
+title: "geom_segment_3d"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_segment_3d}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(dplyr)
+```
+
+
+
+
+
+Stanford Bunny with `geom_segment_3d()`
+------------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Load the Stanford Bunny object and manually convert to a data.frame
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+obj <- rgl::readOBJ("images/bunny.obj")
+
+verts <- t(obj$vb)
+faces <- t(obj$it)
+
+verts_df <- as_tibble(as.data.frame(verts[,-4])) %>%
+  mutate(idx = seq(n()))
+
+faces_df <- tibble(
+  v1 = c(faces[,1], faces[,2]),
+  v2 = c(faces[,2], faces[,3])
+)
+
+
+obj_df <- faces_df %>% 
+  left_join(verts_df, by = c(v1 = 'idx')) %>%
+  rename(x = V1, y = V2, z = V3) %>%
+  left_join(verts_df, by = c(v2 = 'idx')) %>%
+  rename(xend = V1, yend = V2, zend = V3)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Draw a segment for each edge.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(obj_df) + 
+  geom_segment_3d(aes(x=x, y=y, z=z, xend=xend, yend=yend, zend=zend), size = 0.2) +
+  labs(
+    title = "Wireframe Stanford Bunny",
+    subtitle = "ggrgl::geom_segment_3d() with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  theme(legend.position = 'none') +
+  coord_equal()
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3.5)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0, zscale = 3.5)
+p
+invisible(dev.off())
+```
+
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 9.5,
+                  file = "man/figures/examples/geom-segment-3d-bunny.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+Simple `geom_segment_3d()`
+------------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create data set to plot
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(1)
+N <- 600
+df <- data.frame(
+  x    = 0.5     , y    = 0.5     , z    = 0.5,
+  xend = runif(N), yend = runif(N), zend = runif(N)
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with `geom_segment_3d()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(df) +
+  geom_segment_3d(aes(x=x, y=y, z=z, xend=xend, yend=yend, zend=zend, 
+                      colour = zend), alpha = 0.1, size = 2) +
+  labs(
+    title = "ggrgl::geom_segment_3d()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  theme(legend.position = 'none') + 
+  scale_colour_viridis_c(option = 'A') + 
+  coord_equal()
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3.5)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 11,
+                  file = "man/figures/examples/geom-segment-3d.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+

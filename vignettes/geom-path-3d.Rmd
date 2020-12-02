@@ -1,0 +1,90 @@
+---
+title: "geom_path_3d"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_path_3d}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+```
+
+
+
+An attempt at a 3d version of Minard's visualisation of Napoleon's 1812 march with `geom_line_3d()`
+------------------------------------------------------------------------------
+
+
+```{r}
+library(HistData) # for Minard datasets
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Keep only the main group
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+minard <- Minard.troops[Minard.troops$group == 1, ]
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plot with `geom_path_3d`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(minard) +
+  geom_path_3d(
+    aes(long, lat, z = survivors),
+        extrude = TRUE, extrude_edge_colour = 'grey20', extrude_face_fill = 'grey80',
+    extrude_edge_alpha = 0.2) +
+  geom_text(data = Minard.cities, aes(long, lat, label = city)) + 
+  geom_point(data = Minard.cities, aes(long, lat), colour = 'red') + 
+  theme_ggrgl() +  
+  labs(
+    title = "Napoleon's 1812 March - Height indicates the size of the army",
+    subtitle = "ggrgl::geom_path_3d() with {devoutrgl}"
+  ) 
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3,
+                  file = "man/figures/examples/geom-path-3d-minard.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+

@@ -1,0 +1,151 @@
+---
+title: "geom_point_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_point_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+```
+
+
+
+
+
+Visualising a function `geom_point_z`
+-----------------------------------------------------------------------------
+
+`geom_point_z` renders points as circles by representing them as n-sided 
+polygons.  By setting the `npolys` parameters, the user can control the
+fidelity of the circle representation.
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with geom_point_z
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+func_df <- expand.grid(x = seq(-6, 6, 0.2), y=seq(-6, 6, 0.2)) %>%
+  mutate(
+    z = sin(sqrt(x*x + y*y))
+  )
+
+p <- ggplot(func_df) +
+  geom_point_z(aes(x, y, z = z, colour = z), extrude = FALSE, 
+               extrude_face_alpha = 0.1, size = 3, npolys = 3) +
+  labs(
+    title = "ggrgl::geom_point_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  theme_ggrgl() +
+  scale_colour_viridis_c() + 
+  coord_equal() + 
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, 
+                  file = "man/figures/examples/geom-point-z-function.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+`geom_point_z`
+-----------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with geom_point_z
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 100
+spiral_df <- data.frame(zl = seq(0, 30, length.out = N)) %>%
+  mutate(
+    xl = sin(zl),
+    yl = cos(zl),
+    xp = xl + rnorm(N) * 0.05,
+    yp = yl + rnorm(N) * 0.05,
+    zp = zl + rnorm(N) * 0.05
+  )
+
+
+p <- ggplot(spiral_df) +
+  geom_path_3d(aes(xl, yl, z = zl), alpha = 0.3) + 
+  geom_point_z(aes(xp, yp, z = zp, colour = zp), size = 6) +
+  labs(
+    title = "ggrgl::geom_point_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  theme_ggrgl() +
+  theme(legend.position = 'none') + 
+  coord_equal()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 2)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 6,
+                  file = "man/figures/examples/geom-point-z-bunting.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+

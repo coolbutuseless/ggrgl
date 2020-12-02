@@ -1,0 +1,154 @@
+---
+title: "geom_tile_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_tile_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(ambient)
+library(dplyr)
+```
+
+
+
+Chunky Terrain with `geom_tile_z()`  and {ambient} noise
+-----------------------------------------------------------------------------
+
+[{ambient}](https://github.com/thomasp85/ambient) is a package for generating
+matrices of noise values.
+
+These noise can be used as terrain.
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some perline noise on an NxN grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(3)
+N <- 30
+
+dat <- long_grid(x = seq(0, 10, length.out = N), y = seq(0, 10, length.out = N)) %>% 
+  mutate(
+    noise = 
+      gen_perlin(x, y, frequency = 0.3) + 
+      gen_perlin(x, y, frequency = 2) / 10
+  ) 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot each location as a coloured tile
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(dat) + 
+  geom_tile(aes(x, y, fill = noise)) + 
+  scale_fill_gradientn(colours = topo.colors(10)) + 
+  theme_bw() + 
+  coord_equal()
+```
+
+
+Plot in 3d
+-----------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot each location as a coloured tile and z extrusion
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(dat, aes(x, y, z = noise)) +
+  geom_tile_z(aes(fill = noise), colour = NA)  +
+  labs(
+    title = "ggrgl::geom_tile_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  scale_fill_gradientn(colours = topo.colors(10)) + 
+  coord_equal() + 
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+Add extrusions
+-----------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot each location as a coloured tile and z extrusion
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(dat, aes(x, y, z = noise)) +
+  geom_tile_z(aes(fill = noise, extrude_face_fill = noise), colour = NA,
+              extrude = TRUE)  +
+  labs(
+    title = "ggrgl::geom_tile_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  scale_fill_gradientn(colours = topo.colors(10)) + 
+  scale_extrude_face_fill_gradientn(colours = darken_colour(topo.colors(10))) + 
+  coord_equal() + 
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0, zscale = 1)
+p
+invisible(dev.off())
+```
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view3d_args = list(-20, -50), 
+                  file = "man/figures/examples/geom-tile-z.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```

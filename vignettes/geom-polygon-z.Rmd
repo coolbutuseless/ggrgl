@@ -1,0 +1,219 @@
+---
+title: "geom_polygon_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_polygon_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(string2path)
+```
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some letterforms using string2path
+# - https://github.com/yutannihilation/string2path
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ttf_file <- "images/verdana.ttf"
+font_polygons <- string2path::string2fill("R", ttf_file, tolerance = 0.01)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render polygons
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(font_polygons) +
+  geom_polygon_z(aes(x, y, group = id), colour = NA, size = 0.1, z = 40, 
+                 extrude = TRUE, extrude_face_fill = 'skyblue',
+                 extrude_edge_colour = 'grey50') +
+  theme_ggrgl() +
+  labs(
+    title = "ggrgl::geom_polygon_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  coord_equal() +
+  theme(legend.position = "none")
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3,
+                  file = "man/figures/examples/geom-polygon-z-1.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+
+Nested Hexagons
+------------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# polygons_df - data.frame of polygon vertices with group/subgroups
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+r <- 5
+hex_df <- data.frame(
+  x = r * cos(seq(30, 360, 60) * pi/180),
+  y = r * sin(seq(30, 360, 60) * pi/180),
+  group = 1,
+  subgroup = 1
+)
+
+hole_df <- data.frame(
+  x = 2 * cos(seq(30, 360, 60) * pi/180) + 1,
+  y = 2 * sin(seq(30, 360, 60) * pi/180) + 1,
+  group    = 1,
+  subgroup = 2
+)
+
+polygons_df <- rbind(hex_df, hole_df)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plot with `geom_polygon_z()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(polygons_df) +
+  geom_polygon_z(aes(x, y, group=group, subgroup=subgroup), z = 50, 
+                 extrude = TRUE, colour = 'tomato', 
+                 fill = 'lightblue2') +
+  theme_ggrgl() + 
+  coord_equal() + 
+  labs(
+    title = "ggrgl::geom_polygon_z()",
+    subtitle = "with {devoutrgl}"
+  ) 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3,
+                  file = "man/figures/examples/geom-polygon-z.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+
+Height-mapped USA with `geom_polygon_z()`
+------------------------------------------------------------------------------
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# polygons_df - data.frame of polygon vertices with group/subgroups
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arrests <- USArrests 
+arrests$region <- tolower(rownames(USArrests))
+
+states_map <- map_data("state")
+arrests_map <- left_join(states_map, arrests, by = "region")
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create the map
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(arrests_map, aes(long, lat, group = group))+
+  geom_polygon_z(aes(fill = Assault, z = Assault), color = "white", extrude = TRUE)+
+  scale_fill_viridis_c(option = "C") +
+  theme_ggrgl() + 
+  labs(
+    title = "ggrgl::geom_polygon_z()",
+    subtitle = "with {devoutrgl}"
+  ) + 
+  coord_fixed(1.2)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3,
+                  file = "man/figures/examples/geom-polygon-z-usa.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+

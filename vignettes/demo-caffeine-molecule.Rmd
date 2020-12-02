@@ -1,0 +1,104 @@
+---
+title: "Demo - Caffeine Molecule"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Caffeine Molecule}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(raymolecule)
+```
+
+
+Caffeine Molecule with `geom_sphere_3d`
+------------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# remotes::install_github("tylermorganwall/raymolecule")
+# Get the caffeine molecule
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdf <- raymolecule::get_example_molecule("caffeine") %>% read_sdf()
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# de-noramlise the bonds into actual coordinate endpoints
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bonds <- sdf$bonds %>% select(from, to)
+bonds <- bonds %>% 
+  left_join(sdf$atoms, by = c(to = 'index')) 
+
+bonds <- bonds %>%
+  dplyr::rename(xend = x, yend = y, zend = z) %>%
+  select(-type) %>%
+  left_join(sdf$atoms, by = c(from = 'index'))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a plot with `geom_sphere_3d`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot() +
+  geom_sphere_3d(data = sdf$atoms, aes(x=x, y=y, z=z, colour = type, size = type)) +
+  geom_segment_3d(data = bonds, aes(x=x, y=y, z=z, xend=xend, yend=yend, zend=zend), 
+                  alpha = 0.5) +
+  theme_ggrgl() + 
+  labs(
+    title = "ggrgl::geom_sphere_3d()",
+    subtitle = "with {devoutrgl}"
+  ) +
+  scale_size_manual(values = c(3, 6, 9, 12)) + 
+  coord_equal() 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render with a 3d backend - devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0)
+p
+invisible(dev.off())
+```
+
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 1,
+                  file = "man/figures/examples/demo-caffeine-molecule.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```
+
+
+## Raymolecule
+
+Thanks to Tyler Morgan Wall for the RayMolecule package.
+

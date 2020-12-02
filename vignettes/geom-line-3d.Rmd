@@ -1,0 +1,87 @@
+---
+title: "geom_line_3d"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_line_3d}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(gapminder)
+```
+
+
+
+
+`geom_line_3d()`
+-----------------------------------------------------------------------------
+
+The [{gapminder}](https://cran.r-project.org/package=gapminder) dataset 
+contains "data on life expectancy, GDP per capita, and population by country.
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# GapMinder dataset
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(1)
+
+gapminder_df <- gapminder::gapminder %>%
+  filter(country %in% sample(unique(.$country), 6)) %>%
+  mutate(country = as.character(country))
+
+last_rows <- gapminder_df %>% filter(year == 2007)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with `geom_line_3d()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(gapminder_df, aes(x=year, y=lifeExp, z=gdpPercap, group = country)) +
+  geom_line_3d(aes(colour = country)) +
+  geom_text_z(data = last_rows, aes(label = country)) + 
+  labs(
+    title = "'gapminder' country data. Height indicates GDP-per-capita",
+    subtitle = "ggrgl::geom_line_3d() with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  theme(legend.position = 'none')
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 4,
+                  file = "man/figures/examples/geom-line-3d.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```

@@ -1,0 +1,92 @@
+Package: ggrgl
+Type: Package
+Title: 3D Graphing Using the Grammar of Graphics
+Version: 0.1.0
+Author: mikefc
+Maintainer: mikefc <mikefc@coolbutuseless.com>
+Description: A package for creating 3d visualiations using the grammar of graphics.
+    This package requires a 3d rendering backend (currently only `devoutrgl` is supported).
+URL: https://coolbutuseless.github.io/package/ggrgl, https://github.com/coolbutuseless/ggrgl
+BugReports: https://github.com/coolbutuseless/ggrgl/issues
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports:
+    rgl,
+    ggplot2,
+    scales,
+    tibble,
+    rlang,
+    glue,
+    magick,
+    isoband,
+    terrainmeshr,
+    snowcrash,
+    cryogenic,
+    triangular
+Suggests:
+    devoutrgl,
+    knitr,
+    rmarkdown,
+    raymolecule,
+    dplyr,
+    string2path,
+    png,
+    purrr,
+    palmerpenguins,
+    tidyr,
+    viridis,
+    HistData,
+    ambient,
+    CP1919,
+    gapminder,
+    viridisLite
+Remotes:
+    coolbutuseless/devoutrgl,
+    coolbutuseless/snowcrash,
+    coolbutuseless/triangular,
+    coolbutuseless/cryogenic,
+    yutannihilation/string2path,
+    coolbutuseless/CP1919
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr
+Collate: 
+    'aaa-aesthetics-exrusion.R'
+    'aaa-ggplot2-compat-plyr.R'
+    'aaa-ggplot2-ggplot-global.R'
+    'aaa-ggplot2-performance.R'
+    'aaa-ggplot2-scale-manual.R'
+    'aaa-ggplot2-utilities-grid.R'
+    'aaa-ggplot2-utilities-matrix.R'
+    'aaa-ggplot2-utilities.R'
+    'aab-utils.R'
+    'data.R'
+    'extrusion-new.R'
+    'geom-rect.R'
+    'geom-bar.R'
+    'geom-polygon.R'
+    'geom-contour-filled.R'
+    'geom-path.R'
+    'geom-contour.R'
+    'geom-ribbon.R'
+    'geom-density.R'
+    'geom-point.R'
+    'geom-segment.R'
+    'geom-sphere.R'
+    'geom-text.R'
+    'geom-tile.R'
+    'scale-extrude-colour.R'
+    'scale-extrude-gradient.R'
+    'scale-extrude-hue.R'
+    'scale-extrude-manual.R'
+    'scale-extrude-viridis.R'
+    'scale-identity.R'
+    'scale-z.R'
+    'scale-zend.R'
+    'stat-contour-filled.R'
+    'stat-contour.R'
+    'theme.R'
+    'utils-magick.R'
+    'utils.R'

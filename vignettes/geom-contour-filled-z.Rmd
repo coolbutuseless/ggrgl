@@ -1,0 +1,94 @@
+---
+title: "geom_contour_filled_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_contour_filled_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+```
+
+
+`geom_contour_filled_z()`
+-----------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with `geom_contour_filled_z()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(faithfuld) +
+  geom_contour_filled_z(aes(waiting, eruptions, z = density),
+                        extrude = TRUE, extrude_face_fill = 'grey20') +
+  theme_ggrgl() + 
+  labs(
+    title = "ggrgl::geom_contour_filled_z()",
+    subtitle = "with {devoutrgl}"
+  ) 
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3,
+                  file = "man/figures/examples/geom-contour-filled-z.png",  close_window = TRUE, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
+
+```{r eval=FALSE, echo=FALSE}
+devoutrgl::save_animated_scene(gif_name = "man/figures/anim1.gif")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

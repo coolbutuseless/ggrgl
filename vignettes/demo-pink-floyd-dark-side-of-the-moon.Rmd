@@ -1,0 +1,111 @@
+---
+title: "Demo - Pink Floyd: Dark Side of the Moon"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Pink Floyd: Dark Side of the Moon}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 6,
+  fig.width  = 8
+)
+```
+
+```{r setup, message=FALSE}
+library(rgl)
+library(ggplot2)
+library(devoutrgl)
+library(ggrgl)
+```
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 2D plot thanks to @geotheory
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+interior_df <- data.frame(
+  x    = -1.38,
+  y    = seq(3.0, 3.0, len=30),
+  xend = seq(1.4, 1.1, len=30), 
+  yend = seq(3.0, 3.5, len=30)
+)
+
+spectrum_df <- data.frame(
+  id   = 1:30, 
+  x    = seq(1.1, 1.35, len=30), 
+  y    = seq(3.5,  3.0, len=30),
+  xend = seq( 10,   10, len=30), 
+  yend = seq(2.0,  1.0, len=30)
+)
+
+
+h <- 50
+
+p <- ggplot() + 
+  annotate(
+    x = -10, y=1, xend = -1.38, yend=3, geom='segment_3d', col='white', 
+    z = h, zend = h, 
+    extrude = TRUE, extrude_face_fill = 'white', extrude_face_alpha = 0.3
+  ) +
+  geom_segment_3d(
+    data = interior_df, 
+    aes(x, y, xend=xend, yend=yend), 
+    z = h, zend = h, col='#ffffff10',
+    extrude = TRUE, extrude_face_fill = 'white', extrude_face_alpha = 0.05
+  ) +
+  geom_segment_3d(
+    data = spectrum_df, 
+    aes(x, y, xend = xend, yend = yend, col = factor(id), extrude_face_fill = factor(id)), 
+    extrude = TRUE,
+    z = h, zend = h, alpha = 0.05
+  ) +
+  geom_polygon_z(
+    data=NULL, 
+    aes(c(-3, 0, 3, -3), y = c(0,5.5,0,0)), z = h, 
+    extrude = TRUE, extrude_face_alpha = 0.3, extrude_face_fill = 'white', 
+    alpha = 0.3,
+    col='#ffffff80', fill = '#40404040'
+  ) +
+  scale_color_manual(values = rainbow(30, end = .7)) +
+  scale_y_continuous(limits = c(-3,8)) +
+  coord_equal() + 
+  theme_void() + 
+  theme(plot.background = element_rect(fill='black')) +
+  guides(col = FALSE)
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plot in 3d with devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -40, zscale = 1)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0, zscale = 1)
+p
+invisible(dev.off())
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(file = "man/figures/examples/demo-dark-side-of-the-moon.png",  close_window = FALSE,
+                  fov = 30, view3d_args = list(-30, -20), zscale = 3, dpi = 200)
+p
+dev.off()
+```
+

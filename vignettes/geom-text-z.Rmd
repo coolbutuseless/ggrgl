@@ -1,0 +1,82 @@
+---
+title: "geom_text_z"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{geom_text_z}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(dplyr)
+library(ggrgl)
+```
+
+
+"That's Numberwang!" with `geom_text_z()`
+-----------------------------------------------------------------------------
+
+```{r}
+set.seed(1)
+N <- 100
+plot_df <- data.frame(
+  x = runif(N),
+  y = runif(N),
+  z = runif(N)
+)
+
+plot_df$label <- round(plot_df$z, 3)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with geom_segment_3d()
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(plot_df, aes(x, y, z=z, label = label)) +
+  # geom_point_z(z = 0, colour = 'red', size = 5, alpha = 0.5) +
+  geom_text_z(alpha = 0.1) +
+  theme_ggrgl() +
+  labs(
+    title = "#Numberwang",
+    subtitle = "ggrgl::geom_text_z()with {devoutrgl}"
+  ) +
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 3)
+p
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving Example Image.
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view = 'flat', view_flat_angle = -55, zscale = 10,
+                  file = "man/figures/examples/geom-text-z.png",  close_window = FALSE, dpi = 200)
+p
+dev.off()
+```

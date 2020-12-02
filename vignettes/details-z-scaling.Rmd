@@ -1,0 +1,151 @@
+---
+title: "Detail - Z Scaling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Detail - Z Scaling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+```
+
+
+Z scaling
+-----------------------------------------------------------------------------
+
+Variables may be mapped to the `z` direction just like the `x` and `y` aesthetics
+in `ggplot2`.
+
+The behaviour is a little different though in that:
+
+* `x` and `y` aesthetics are naturally confined to the size of the page.
+* The `z` direction has no natural boundary in a plot
+
+
+Default z-position scales: `scale_z_continuous()` and `scale_z_discrete()`
+-----------------------------------------------------------------------------
+
+By default z values are scaled into the range [1, 100].  
+
+How high something at
+the maximum z coordinate actually appears on a given plot depends 3 things.
+
+1. The `range` argument to `scale_z_continuous()`/`scale_z_discrete()`
+2. the `zscale` argument to `devoutrgl::rgldev()` - which defaults to 1, and further
+   applies a multiplicative scale factor to the extents in the z-direction.
+3. the `dpi` argumnet to `devoutrgl::rgldev()`. This defaults to `dpi=72` which
+is useful for screen presentation.  Higher values, which may be useful for 
+saving to PNG, will cause a distortion in the Z scaling.
+
+
+Default Z Range: `range = c(1, 100)`
+-----------------------------------------------------------------------------
+
+```{r}
+n <- seq(1, 1000, length.out = 20)
+plot_df <- data.frame(x=n, y=n, z=n+1000)
+
+p <- ggplot(plot_df) + 
+  geom_point_z(aes(x=x, y=y, z=z, colour = z), extrude = TRUE, extrude_face_alpha = 0.25)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+Custom Z Range: `range = c(1, 500)`
+-----------------------------------------------------------------------------
+
+```{r}
+p <- ggplot(plot_df) + 
+  geom_point_z(aes(x=x, y=y, z=z, colour = z), extrude = TRUE, extrude_face_alpha = 0.25) + 
+  scale_z_continuous(range = c(1, 500))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+Custom Z Range: `range = c(100, 300)`
+-----------------------------------------------------------------------------
+
+```{r}
+p <- ggplot(plot_df) + 
+  geom_point_z(aes(x=x, y=y, z=z, colour = z), 
+               extrude = TRUE, extrude_face_alpha = 0.25, extrude_z=100) + 
+  scale_z_continuous(range = c(100, 200))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+
+
+Default Z Range with `xscale > 1`: `range = c(1, 100)`
+-----------------------------------------------------------------------------
+
+Set `rgldev(zscale = ...)` to change the z scaling at the device level.
+
+```{r}
+n <- seq(1, 1000, length.out = 20)
+plot_df <- data.frame(x=n, y=n, z=n+1000)
+
+p <- ggplot(plot_df) + 
+  geom_point_z(aes(x=x, y=y, z=z, colour = z), extrude = TRUE, extrude_face_alpha = 0.25)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 10)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```

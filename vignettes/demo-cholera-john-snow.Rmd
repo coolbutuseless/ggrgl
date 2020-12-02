@@ -1,0 +1,85 @@
+---
+title: "Demo - Cholera (John Snow)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Cholera (John Snow)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(purrr)
+library(rgl)
+library(ggrgl)
+library(HistData)
+```
+
+
+
+Cholera Outbreak - John Snow
+------------------------------------------------------------------------------
+
+I tried to see if using 3d adds anything to the visualisation of the cholera 
+outbreak - initially visualized by John Snow.
+
+
+
+
+```{r}
+broad_st <- Snow.pumps %>% filter(label == 'Broad St')
+
+p <- ggplot() +
+  geom_line(data = Snow.streets, aes(x, y, group = street), alpha = 0.3) +
+  geom_point(data = Snow.pumps, aes(x, y), colour = 'red') +
+  geom_text(data = Snow.pumps, aes(x, y, label = label)) +
+  geom_sphere_3d(data = broad_st, aes(x, y), colour = 'red', z = 130, size = 5) +
+  geom_text_z(data = broad_st, aes(x, y, label = label), z = 135) +
+  geom_segment_3d(data = broad_st, aes(x=x, xend=x, y=y, yend=y),
+                  z = 0, zend = 130, colour = 'black', alpha = 0.3) +
+  stat_bin_2d(data = Snow.deaths, aes(x, y, z = ..count..), geom = GeomTileZ,
+              extrude = TRUE, extrude_face_alpha = 1, extrude_edge_colour = 'grey30',  bins = 20) +
+  theme_void() + 
+  coord_equal() + 
+  scale_fill_viridis_c(option = 'C') + 
+  labs(
+    title = "Cholera Deaths (height)",
+    subtitle = "Labelled red points are pump locations."
+  ) 
+  
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plot in 3d with devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -40, zscale = 1)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(file = "man/figures/examples/demo-cholera.png",  close_window = FALSE,
+                  fov = 30, view3d_args = list(0, -45), zscale = 3, dpi = 200)
+p
+dev.off()
+```
+
+
+
+

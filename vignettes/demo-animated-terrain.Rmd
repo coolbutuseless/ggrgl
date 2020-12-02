@@ -1,0 +1,168 @@
+---
+title: "Demo - Animated Terrain"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - Animated Terrain}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(ggplot2)
+library(rgl)
+library(ggrgl)
+library(ambient)
+library(dplyr)
+```
+
+
+
+Chunky Terrain with `geom_tile_z()`  and {ambient} noise
+-----------------------------------------------------------------------------
+
+[{ambient}](https://github.com/thomasp85/ambient) is a package for generating
+matrices of noise values.
+
+These noise can be used as terrain.
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some perlin noise on a grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(6)
+
+colfunc <- colorRamp(topo.colors(20))
+
+dat <- long_grid(x = seq(0, 60, 0.25), y = seq(0, 2, 0.25)) %>% 
+  mutate(
+    noise = 
+      gen_perlin(x, y, frequency = 0.3) + 
+      gen_perlin(x, y, frequency = 2) / 10,
+    noise       = normalise(noise),
+    top_col     = rgb(colfunc(noise), maxColorValue = 255),
+    extrude_col = darken_colour(top_col),
+    height      = noise * 100
+  )
+```
+
+
+Terrain in 2D
+-----------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot each location as a coloured tile
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ggplot(dat) + 
+  geom_tile(aes(x, y, fill = I(top_col))) + 
+  # scale_fill_gradientn(colours = topo.colors(10)) + 
+  theme_bw() + 
+  coord_equal() + 
+  labs(title = "Terrain via {ambient}")
+```
+
+
+Terrain in 3D
+-----------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 3d plot with geom_tile_z
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(dat[dat$x < 6,], aes(x, y, z = I(height))) +
+  geom_tile_z(aes(fill = I(top_col), extrude_face_fill = I(extrude_col)), colour = NA,
+              extrude = TRUE)  +
+  labs(
+    title    = "Animated Terrain",
+    subtitle = "ggrgl::geom_tile_z() with {devoutrgl}"
+  ) + 
+  theme_ggrgl() + 
+  coord_equal() + 
+  theme(legend.position = 'none')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# The following user matrix was found by manipulating the view into an 
+# exisint RGL window, and then using `par3d('userMatrix')` to extract it
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+M <- structure(c(0.926770210266113, 0.119720481336117, -0.356039375066757, 
+                 0, -0.328921854496002, 0.716400623321533, -0.615288972854614, 
+                 0, 0.181404113769531, 0.687340617179871, 0.70331734418869, 0, 
+                 0, 0, 0, 1), .Dim = c(4L, 4L))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render Plot in 3d with {devoutrgl}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view3d_args = list(userMatrix = M))
+print(p)
+invisible(dev.off())
+```
+
+
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+Animated view
+-----------------------------------------------------------------------------
+
+100 frames are rendered one-at-a-time and then externally stitched into an
+animated GIF.
+
+
+```{r eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Plot each location as a coloured tile and z extrusion
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+start <- 1
+idx <- 0
+step <- 0.25
+for (start in seq(1, max(dat$x)-5, step)) {
+# for (start in 1:5) {
+  print(start)
+  
+  sub_dat <- dat %>%
+    as_tibble() %>% 
+    filter(between(x, start, start+5))
+  
+  p <- ggplot(sub_dat, aes(x, y, z = I(height))) +
+    geom_tile_z(aes(fill = I(top_col), extrude_face_fill = I(extrude_col)), colour = NA,
+                extrude = TRUE)  +
+    labs(
+      title    = "Animated Terrain",
+      subtitle = "ggrgl::geom_tile_z() with {devoutrgl}"
+    ) + 
+    theme_ggrgl() + 
+    coord_equal() + 
+    theme(legend.position = 'none')
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Render Plot in 3d with {devoutrgl}
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  idx <- idx + 1
+  filename <- sprintf("working/terrain/%03i.png", idx)
+  devoutrgl::rgldev(filename = filename, fov = 30, view3d_args = list(userMatrix = M), close_window = TRUE)
+  print(p)
+  invisible(dev.off())
+}
+```
+
+
+ <video width="70%" controls>
+  <source src="images/terrain.mp4">
+  Your browser does not support the video tag.
+</video> 

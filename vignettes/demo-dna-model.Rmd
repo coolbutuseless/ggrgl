@@ -1,0 +1,107 @@
+---
+title: "Demo - DNA Model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demo - DNA Model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = "#>",
+  fig.width  = 8,
+  fig.height = 6
+)
+```
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(purrr)
+library(rgl)
+library(ggrgl)
+library(string2path)
+```
+
+
+
+Create DNA Model
+------------------------------------------------------------------------------
+
+```{r}
+set.seed(1)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Model Parameters
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N         <- 20
+zoffset   <- 10
+theta_inc <- 10
+helix_r   <- 1
+theta     <- seq_len(N) * theta_inc * pi/180
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create model
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+dna <- data.frame(
+  x1   = helix_r * cos(theta),
+  y1   = helix_r * sin(theta),
+  x2   = helix_r * cos(theta + pi),
+  y2   = helix_r * sin(theta + pi),
+  z    = seq_len(N) * zoffset,
+  base = sample(c('A', 'T', 'C', 'G'), size = N, replace = TRUE)
+)
+
+dna$cbase <- c(A='T', T='A', C='G', G='C')[dna$base]
+```
+
+
+
+Plot DNA Model
+------------------------------------------------------------------------------
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create plot with `geom_voxel_3d()`
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+p <- ggplot(dna) +
+  geom_sphere_3d(aes(x1, y1, z = z, colour =  base), size = 15) + 
+  geom_sphere_3d(aes(x2, y2, z = z, colour = cbase), size = 15) + 
+  geom_segment_3d(aes(x = x1, y = y1, z = z, xend = x2, yend = y2, zend = z), alpha = 0.25) + 
+  coord_equal() +
+  theme_ggrgl() +
+  labs(
+    title    = "Simple DNA Model",
+    subtitle = "ggrgl::geom_sphere_3d() + geom_segment_3d() with {devoutrgl}"
+  ) + 
+  scale_color_brewer(palette = 'Dark2')
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# plot in 3d with devoutrgl
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+devoutrgl::rgldev(fov = 30, view_angle = -40, zscale = 5)
+p
+invisible(dev.off())
+```
+
+**Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**
+
+```{r echo=FALSE}
+if (!interactive()) rgl::rglwidget()
+```
+
+
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(file = "man/figures/examples/demo-dna-model.png",  close_window = TRUE,
+                  fov = 30, view3d_args = list(0, -75), zscale = 10, dpi = 200)
+p
+dev.off()
+```
+
+
+
+
