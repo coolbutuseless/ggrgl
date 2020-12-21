@@ -14,11 +14,17 @@ knitr::opts_chunk$set(
   fig.width  = 8,
   fig.height = 6
 )
-library(ggplot2)
-library(rgl)
-library(ggrgl)
 ```
 
+
+```{r setup, message = FALSE}
+library(rgl)
+library(devout)
+library(devoutrgl)
+library(ggrgl)
+library(ggplot2)
+library(dplyr)
+```
 
 Z scaling
 -----------------------------------------------------------------------------

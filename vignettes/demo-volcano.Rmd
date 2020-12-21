@@ -16,16 +16,21 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
 ```{r setup, message = FALSE}
-library(dplyr)
+library(rgl)
+library(devout)
+library(devoutrgl)
+library(ggrgl)
 library(ggplot2)
+library(dplyr)
 library(purrr)
 library(tibble)
 library(tidyr)
-library(rgl)
-library(ggrgl)
 library(viridis)
 ```
+
 
 
 

@@ -17,10 +17,12 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message = FALSE}
-library(dplyr)
-library(ggplot2)
 library(rgl)
+library(devout)
+library(devoutrgl)
 library(ggrgl)
+library(ggplot2)
+library(dplyr)
 library(raymolecule)
 ```
 
@@ -121,6 +123,13 @@ devoutrgl::rgldev(fov = 30, view_angle = -30, zscale = 4)
 p
 invisible(dev.off())
 ```
+
+```{r echo=FALSE, eval=FALSE}
+devoutrgl::rgldev(fov = 0, view_angle = 0, zscale = 4)
+p
+invisible(dev.off())
+```
+
 
 
 **Use your mouse, mouse buttons and scrollwheel to manipulate the 3d plot**

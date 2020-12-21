@@ -16,15 +16,18 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
 ```{r setup, message = FALSE}
-library(dplyr)
-library(ggplot2)
-library(purrr)
 library(rgl)
+library(devout)
+library(devoutrgl)
 library(ggrgl)
+library(ggplot2)
+library(dplyr)
+library(purrr)
 library(HistData)
 ```
-
 
 
 Cholera Outbreak - John Snow

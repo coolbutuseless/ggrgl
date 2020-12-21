@@ -16,14 +16,16 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ```{r setup, message = FALSE}
-library(dplyr)
-library(ggplot2)
 library(rgl)
+library(devout)
+library(devoutrgl)
 library(ggrgl)
+library(ggplot2)
+library(dplyr)
 library(gapminder)
 ```
-
 
 
 

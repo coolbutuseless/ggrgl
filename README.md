@@ -162,6 +162,18 @@ documentation](https://coolbutuseless.github.io/package/ggrgl/)
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Always explicitly load required packages - there are some possible 
+# issues if you don't!
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+suppressPackageStartupMessages({
+  library(rgl)
+  library(devout)
+  library(devoutrgl)
+  library(ggrgl)
+  library(ggplot2)
+})
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use `geom_bar_z` and set `z` to 200 and use extrusion
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 p <- ggplot(mpg) +

@@ -20,11 +20,16 @@ library(ggrgl)
 library(ggplot2)
 ```
 
-```{r setup}
+
+```{r setup, message = FALSE}
+library(rgl)
+library(devout)
 library(devoutrgl)
 library(ggrgl)
 library(ggplot2)
+library(dplyr)
 ```
+
 
 
 3d Pie Chart

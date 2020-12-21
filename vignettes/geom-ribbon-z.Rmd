@@ -16,16 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
 ```{r setup, message = FALSE}
-library(ggplot2)
 library(rgl)
+library(devout)
+library(devoutrgl)
 library(ggrgl)
-library(CP1919)  # Pulsar data used for Joy Division album cover
 library(ggplot2)
 library(dplyr)
+library(CP1919)  # Pulsar data used for Joy Division album cover
 ```
-
-
 
 
 

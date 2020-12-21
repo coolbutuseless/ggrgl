@@ -12,10 +12,12 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 
+library(devout)
+library(devoutrgl)
 library(ggrgl)
+library(ggplot2)
 library(raymolecule)
 library(dplyr)
-library(ggplot2)
 
 
 if (FALSE) {
@@ -262,6 +264,18 @@ Example - A Basic 3d Bar Plot with `geom_bar_z()`
 ------------------------------------------------------------------------------
 
 ```{r eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Always explicitly load required packages - there are some possible 
+# issues if you don't!
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+suppressPackageStartupMessages({
+  library(rgl)
+  library(devout)
+  library(devoutrgl)
+  library(ggrgl)
+  library(ggplot2)
+})
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Use `geom_bar_z` and set `z` to 200 and use extrusion
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -20,6 +20,18 @@ library(ggrgl)
 ```
 
 
+
+```{r setup, message = FALSE}
+library(rgl)
+library(devout)
+library(devoutrgl)
+library(ggrgl)
+library(ggplot2)
+library(dplyr)
+```
+
+
+
 Keep a 2d shadow of a 3d geom
 -----------------------------------------------------------------------------
 
